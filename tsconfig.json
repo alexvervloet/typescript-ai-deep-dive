@@ -1,0 +1,40 @@
+{
+  // The compiler settings this repo teaches with. Two of them are load-bearing
+  // for the lessons and worth knowing why:
+  //
+  //   "strict": true       turns on the checks that make TypeScript worth using.
+  //                        Without it, `any` leaks everywhere and the compiler
+  //                        agrees with you about code that cannot work. Every
+  //                        example here assumes it is on.
+  //
+  //   "module": "NodeNext" means real ESM, the same module system Node itself
+  //                        runs. Imports therefore carry a file extension, and
+  //                        we write the *TypeScript* one (`./providers.ts`)
+  //                        because that is what `tsx` and Node's own type
+  //                        stripping both accept.
+  //
+  // We never emit JavaScript: `tsx` strips the types and runs the file. So
+  // "noEmit" is on and `npm run typecheck` is a pure checking pass.
+  "compilerOptions": {
+    "target": "ES2023",
+    "lib": ["ES2023"],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "types": ["node"],
+
+    "strict": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "forceConsistentCasingInFileNames": true,
+
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "noEmit": true
+  },
+  // `broken/` holds files that are SUPPOSED to fail typechecking; example 06
+  // runs the compiler on them on purpose and prints the error.
+  "include": ["**/*.ts"],
+  "exclude": ["node_modules", "broken"]
+}
