@@ -134,3 +134,50 @@ one before you cache it or show it.
 
 **Next time.** Any example whose trigger is "after N events" is measuring the
 provider's chunking, not the thing it meant to measure.
+
+---
+
+## 5. The blocked event loop is invisible from inside the blocked process
+
+**Expected.** Example 12 was written to show that one synchronous handler stalls
+every other request. The measurement: fire a request at `/block?ms=400`, wait
+20ms, then time a `/health` request from the same script.
+
+**What actually happened.** `/health` came back in 2ms, and the example printed
+that healthy number in a row labelled "stalled." The output contradicted its
+own label on the first run.
+
+**The diagnosis, which is the real lesson.** The client script and the server
+were the same process, so the busy loop blocked *the measuring code too*.
+Instrumenting the timeline made it obvious:
+
+```
+    3.3  client: firing /block
+    7.5  server: got /block
+  407.5  server: block done
+  409.5  client: firing /health      <- the "20ms" timer fired at 409ms
+  414.2  client: /health took 4.7ms
+```
+
+The `setTimeout(..., 20)` could not fire until the block finished, so the health
+check was sent *after* the stall was over and correctly measured nothing.
+
+**What we did.** Moved the probe into a child process (`node -e`, polling
+`/health` twelve times, reporting the worst case). Measured properly: 24ms idle,
+22ms while streaming a model reply, **592ms** while running 600ms of sync code.
+Then kept the failed in-process attempt as its own section, because the failure
+is more instructive than the success:
+
+| | |
+|---|---|
+| `fetch("/block?ms=400")` | at 0ms |
+| `setTimeout(..., 20)` | fired at 401ms |
+
+**Why it matters beyond the example.** Everything you would normally use to
+notice a stalled Node process runs on the stalled loop: the health endpoint,
+request timeouts, the metrics flush, the SIGTERM handler. A Node service that
+blocks its loop does not report itself as degraded. It looks fine until
+something outside it notices.
+
+**Next time.** When measuring a process's responsiveness, ask what the
+measurement itself is running on.
