@@ -114,12 +114,14 @@ function lastUserText(messages: Msg[]): string {
 }
 
 /** Every tool result already in the conversation, oldest first. */
-function toolResults(messages: Msg[]): string[] {
-  const out: string[] = [];
+function toolResults(messages: Msg[]): Array<{ content: string; isError: boolean }> {
+  const out: Array<{ content: string; isError: boolean }> = [];
   for (const msg of messages) {
     if (typeof msg.content === "string") continue;
     for (const block of msg.content) {
-      if (block.type === "tool_result") out.push(block.content);
+      if (block.type === "tool_result") {
+        out.push({ content: block.content, isError: block.isError === true });
+      }
     }
   }
   return out;
@@ -142,10 +144,25 @@ function plan(req: MockRequest): ContentBlock[] {
   // agent loop, and the reason the mock is stateless: everything it needs is in
   // the messages it was handed.
   if (results.length > 0) {
+    // A real model reads an errored tool result and tries again. The mock is not
+    // that clever, but it does at least tell the two apart, so an example that
+    // forces a tool failure does not print a cheerful answer built from the
+    // error message.
+    const failed = results.filter((r) => r.isError);
+    if (failed.length > 0) {
+      return [
+        {
+          type: "text",
+          text:
+            `The tool call did not go through: ${failed.map((r) => r.content).join("; ")}. ` +
+            `A real model would fix the arguments and try again here.`,
+        },
+      ];
+    }
     return [
       {
         type: "text",
-        text: `Based on the order records: ${results.join(" ")} That is what I have on file.`,
+        text: `Based on the order records: ${results.map((r) => r.content).join(" ")} That is what I have on file.`,
       },
     ];
   }
