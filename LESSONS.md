@@ -37,3 +37,57 @@ that makes people skip validation. Coercion is why it does not blow up.
 **Next time.** Run the failure before describing it. JavaScript's coercion
 rules are not intuitions you can reason your way to from Python, where
 `"12.40" * 0.21` raises `TypeError` immediately and honestly.
+
+---
+
+## 2. Forced to fill a field it cannot know, neither model hallucinated
+
+**Expected.** Example 05 was written around the claim that a required field with
+no answer in the source makes the model invent a plausible value: "structured
+output moved the failure from malformed JSON to well-formed fiction." The
+demonstration asks for a `vatNumber` from a receipt that has none.
+
+**What actually happened.** Neither default model invented anything.
+
+| model | value returned for `vatNumber` |
+|---|---|
+| `gpt-5.4-nano` | `""` |
+| `claude-haiku-4-5` | `"<UNKNOWN>"` |
+
+Both dodged rather than fabricated, which is better behavior than the example
+predicted. Testing the second model mattered: one run would have suggested
+"models return empty strings," and the two together show something else.
+
+**What we did.** Replaced the fiction claim with the measured finding, and made
+the example classify its own result at runtime (empty / sentinel / concrete
+value) so the printed verdict stays true whichever a future model picks.
+
+**The lesson that replaced it, which is sharper.** The problem is not
+fabrication, it is that *each model invents its own private encoding for
+"absent" and `z.string()` accepts all of them*. Nothing documents `"<UNKNOWN>"`.
+Nothing stops it changing between model versions. The schema did not prevent the
+bad value; it guaranteed the bad value would be a string. That is a better
+argument for `z.string().nullable()` than "otherwise it hallucinates," because
+it survives models getting more honest.
+
+**Next time.** When an example's headline is a claim about model *behavior*,
+run at least two models before writing the sentence. One provider is an anecdote.
+
+---
+
+## 3. Prompt-only JSON fails differently on each provider
+
+**Expected.** Example 05 section 1 ("ask nicely for JSON") was written assuming
+it would fail, so the enforced version could rescue it.
+
+**What actually happened.** It failed on OpenAI (`"total": "7.00"`, a string,
+rejected by Zod) and *succeeded* on Claude, which returned the right shape
+wrapped in the code fences the prompt had explicitly forbidden.
+
+**What we did.** Made the section describe whichever failure it actually got,
+and said plainly in the prose that the failure mode is provider-dependent.
+
+**The lesson.** "Asking nicely worked when I tried it" is evidence about one
+model on one day. This is the same trap as lesson 2 from the other direction:
+a passing run does not establish reliability, and the fix is to design so that
+either outcome teaches the reader something true.
