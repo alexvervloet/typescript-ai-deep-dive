@@ -1,0 +1,10 @@
+{
+  // Type-checks the files in this directory, which are SUPPOSED to fail.
+  // Example 06 runs `tsc -p broken/` and prints the real errors, because a
+  // compiler error you can read beats a comment claiming one would happen.
+  //
+  // The root tsconfig excludes this folder, so `npm run typecheck` stays green.
+  "extends": "../tsconfig.json",
+  "include": ["*.ts"],
+  "exclude": []
+}
