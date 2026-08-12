@@ -18,15 +18,11 @@
  *     npx tsx examples/06_blocks_and_unions.ts
  */
 
-import { execFile } from "node:child_process";
-import { promisify } from "node:util";
 import { z } from "zod";
 import { bold, cyan, dim, green, heading, red, yellow } from "../tsai/fmt.ts";
-import { fromRoot } from "../tsai/env.ts";
+import { errorsIn } from "../tsai/compiler.ts";
 import { chat } from "../tsai/providers.ts";
 import type { ContentBlock } from "../tsai/types.ts";
-
-const run = promisify(execFile);
 
 // ---------------------------------------------------------------------------
 
@@ -109,21 +105,14 @@ console.log(`
     ${dim("npx tsc -p broken")}
 `);
 
-let compilerOutput = "";
-try {
-  const result = await run(process.execPath, [
-    fromRoot("node_modules", "typescript", "bin", "tsc"),
-    "-p",
-    fromRoot("broken"),
-  ]);
-  compilerOutput = result.stdout || "(no errors, which is itself a bug in this example)";
-} catch (error) {
-  // tsc exits non-zero when it finds errors, and writes them to stdout.
-  compilerOutput = (error as { stdout?: string }).stdout ?? String(error);
-}
+const diagnostics = [
+  ...(await errorsIn("broken/missing_case.ts")),
+  ...(await errorsIn("broken/wrong_field.ts")),
+];
 
-for (const line of compilerOutput.trimEnd().split("\n")) {
-  console.log(`    ${red(line)}`);
+for (const line of diagnostics) console.log(`    ${red(line)}`);
+if (diagnostics.length === 0) {
+  console.log(`    ${red("(no errors, which would itself be a bug in this example)")}`);
 }
 
 console.log(`
