@@ -96,6 +96,29 @@ const STRUCTURED: Record<string, unknown> = {
   },
 };
 
+/**
+ * Build the capstone's structured answer out of whatever the tools returned.
+ *
+ * Deliberately not canned: if the tools found nothing, `answeredFromTools` is
+ * false and the answer says so. An offline mock that always claimed confident,
+ * tool-grounded answers would quietly break the one check the capstone prints a
+ * warning for.
+ */
+function answerFromToolResults(
+  results: Array<{ content: string; isError: boolean }>,
+): Record<string, unknown> {
+  const usable = results.filter((r) => !r.isError).map((r) => r.content);
+  const orderIds = [...new Set(usable.join(" ").match(/A-\d{4}/g) ?? [])];
+  return {
+    answer:
+      usable.length > 0
+        ? `From the order records: ${usable.join(" ")}`
+        : "The tools did not return anything I can answer from.",
+    orderIds,
+    answeredFromTools: usable.length > 0,
+  };
+}
+
 const ORDER_ID = /\b[Aa]-\d{4}\b/;
 const STATUS_WORDS: OrderStatus[] = ["pending", "shipped", "delivered", "cancelled"];
 
@@ -134,7 +157,13 @@ function plan(req: MockRequest): ContentBlock[] {
   const tools = new Set(req.toolNames ?? []);
 
   if (req.structuredName) {
-    const canned = STRUCTURED[req.structuredName] ?? {};
+    // The capstone's answer schema is the one structured reply the mock can
+    // fill honestly, because everything it needs is already in the tool results
+    // sitting in the conversation. The rest are canned.
+    const canned =
+      req.structuredName === "answer"
+        ? answerFromToolResults(results)
+        : (STRUCTURED[req.structuredName] ?? {});
     const json = JSON.stringify(canned, null, 2);
     const text = mockBehavior.fenceJson ? "```json\n" + json + "\n```" : json;
     return [{ type: "text", text }];
