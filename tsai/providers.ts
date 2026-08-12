@@ -275,6 +275,14 @@ function toAnthropicContent(content: string | ContentBlock[]): unknown {
           content: block.content,
           is_error: block.isError ?? false,
         };
+      default: {
+        // Example 06's exhaustiveness check, doing its job in real code rather
+        // than in a demo. Without it, a new ContentBlock variant would fall
+        // through this switch and quietly send `undefined` to the provider,
+        // because the return type is `unknown` and `unknown` accepts that.
+        const unhandled: never = block;
+        throw new Error(`unhandled content block: ${JSON.stringify(unhandled)}`);
+      }
     }
   });
 }
