@@ -1,0 +1,14 @@
+# Node
+node_modules/
+*.tsbuildinfo
+dist/
+
+# Secrets, never commit your real keys
+.env
+
+# Editor / local history
+.history/
+.vscode/
+
+# Output written by the capstone and the serving example
+out/
