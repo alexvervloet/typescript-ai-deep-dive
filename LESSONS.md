@@ -91,3 +91,46 @@ and said plainly in the prose that the failure mode is provider-dependent.
 model on one day. This is the same trap as lesson 2 from the other direction:
 a passing run does not establish reliability, and the fix is to design so that
 either outcome teaches the reader something true.
+
+---
+
+## 4. Aborting a stream throws on two stacks out of three, and never the same way
+
+**Expected.** Example 08 was written around "the abort is delivered as a thrown
+error, so it must be caught," which is what the offline mock does and what the
+web platform's `AbortSignal` documentation leads you to expect.
+
+**What actually happened.** Three stacks, three behaviors:
+
+| stack | on `controller.abort()` mid-stream |
+|---|---|
+| mock | throws, `error.name === "AbortError"` |
+| openai | does not throw at all; the `for await` loop simply ends |
+| claude | throws `APIUserAbortError("Request was aborted.")`, whose `.name` is `"Error"` |
+
+All three genuinely stopped the stream. Only the delivery differed.
+
+**Why it nearly slipped through.** The first version aborted after a fixed
+number of *events*. Claude sent the whole answer in 4 deltas, so the threshold
+of 8 was never reached and the section quietly demonstrated nothing while
+appearing to pass. Chunk granularity is an implementation detail that varies by
+an order of magnitude between providers. Counting characters instead made the
+section behave the same on all three.
+
+**What we did.** Reported the three-way split in the example itself, and taught
+both halves of the handling:
+
+```ts
+try { for await (...) } catch (e) { ... }   // it might throw
+if (controller.signal.aborted) { ... }      // it might not
+```
+
+**The lesson.** `catch (e) { if (e.name === "AbortError") ... }` is a natural
+thing to write and it is wrong on two of these three stacks: one never throws,
+and the other throws something whose `name` is `"Error"`. Checking
+`signal.aborted` after the loop is the only check that works everywhere, and it
+is also the only thing that distinguishes a truncated answer from a complete
+one before you cache it or show it.
+
+**Next time.** Any example whose trigger is "after N events" is measuring the
+provider's chunking, not the thing it meant to measure.
