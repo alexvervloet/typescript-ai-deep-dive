@@ -11,6 +11,7 @@
   "scripts": {
     "check": "tsx check_setup.ts",
     "typecheck": "tsc --noEmit",
+    "test": "node --test",
     "ask": "tsx hands_on/ask.ts"
   },
   "dependencies": {
