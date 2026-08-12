@@ -181,3 +181,42 @@ something outside it notices.
 
 **Next time.** When measuring a process's responsiveness, ask what the
 measurement itself is running on.
+
+---
+
+## 6. The last turn of an agent loop needs its own system prompt
+
+**Expected.** The capstone runs tool rounds unstreamed, then makes one final
+*streamed* call for the prose (because you cannot act on half a tool call, see
+lesson 4). The final call passes no tools, since it is not going to run any.
+
+**What actually happened.** On Claude, asking "How much has Rivera spent in
+total?" produced this as the final answer:
+
+> I can see some orders from Rivera, but let me check if there are more orders
+> beyond this list.
+
+A sensible sentence, and useless as a returned answer. The model still wanted
+another lookup, and the final turn had quietly removed its ability to ask for
+one without telling it.
+
+**What we did.** Gave the final turn its own system prompt saying the tools are
+gone and this is the last word:
+
+> You have now received all the tool results you are going to get, and no
+> further tools are available. Answer the question using only the information
+> above. If it is not enough, say exactly what is missing.
+
+Same question afterwards produced a complete answer with a total.
+
+**The lesson.** If your loop changes what the model can do, say so in the
+prompt. A silently removed affordance reads to the model as "I will do that
+next," and "next" never comes. This is not TypeScript-specific; it is a
+consequence of splitting a conversation into a tool phase and an answer phase,
+which any streaming agent has to do.
+
+**A second thing that run showed, left alone on purpose.** Claude's corrected
+answer counts two Rivera orders and misses a third (`A-1008`), even though the
+tool returned all eight rows. Nothing in this repo would catch that: Zod
+validates that an answer is well-formed, not that it is right. Only an eval
+catches a wrong sum, which is the sibling dive's whole subject.
