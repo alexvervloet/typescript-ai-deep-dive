@@ -130,7 +130,7 @@ function checkKey(provider: string): boolean {
     bad(`${keyName} is not on the environment.`);
     console.log("      Keys do not live in .env. Store it in your keychain and run under secrun:");
     console.log(`      secrun node --experimental-strip-types check_setup.ts`);
-    console.log("      Setup takes two minutes: see ../SECRETS.md");
+    console.log("      Setup takes two minutes: see ../docs/SECRETS.md");
     console.log("      Or switch to PROVIDER=mock and run the offline examples now.");
     return false;
   }

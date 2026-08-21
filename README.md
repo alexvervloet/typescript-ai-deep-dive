@@ -74,7 +74,7 @@ all visible offline, and paying for tokens to demonstrate `for await` would be
 silly. Example 05 is the exception and says so.
 
 > **Your API key does not go in `.env`.** Store it in your OS keychain and inject
-> it per command with `secrun`: two-minute setup in [SECRETS.md](../SECRETS.md).
+> it per command with `secrun`: two-minute setup in [SECRETS.md](../docs/SECRETS.md).
 > If you select a real provider and the key is missing, the repo degrades to the
 > mock **loudly**, with a banner and a `FALLBACK` note on every provider line, so
 > a keyless run can never be mistaken for a real one. `PROVIDER_STRICT=1` makes
@@ -649,7 +649,7 @@ problems. Then, by symptom:
 |---|---|
 | `ERR_MODULE_NOT_FOUND` on a `.ts` import | Imports need the extension, and it is `.ts` here. That is `"module": "NodeNext"` plus `allowImportingTsExtensions`, and it is what lets `tsx` and Node's own type stripping both work. |
 | `Cannot determine intended module format` | A `require()` and a top-level `await` in the same file. This repo is ESM only; use `import`. |
-| `PROVIDER=... is set but ... is not on the environment` | The loud mock fallback. Run under `secrun` for the real model, or `PROVIDER_STRICT=1` to make it an error. See [SECRETS.md](../SECRETS.md). |
+| `PROVIDER=... is set but ... is not on the environment` | The loud mock fallback. Run under `secrun` for the real model, or `PROVIDER_STRICT=1` to make it an error. See [SECRETS.md](../docs/SECRETS.md). |
 | Example 05 prints "stopping here" | Working as intended on `PROVIDER=mock`. It is the one example that needs a real model. |
 | `npx tsc` installs some other package | You ran it outside the repo. `cd` in first, or use `npm run typecheck`. |
 | Example 06 or 09 prints no compiler errors | The `broken/` fixtures stopped being broken, which is itself a bug. `npx tsc -p broken` should always fail. |

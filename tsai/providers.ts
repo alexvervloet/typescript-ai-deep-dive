@@ -158,7 +158,7 @@ export function ensureReady(): void {
   if (missing.length > 0) {
     console.error(
       `PROVIDER=${provider} needs ${missing.join(", ")} on the environment. ` +
-        `Provide it with secrun (see ../SECRETS.md), or use PROVIDER=mock.`,
+        `Provide it with secrun (see ../docs/SECRETS.md), or use PROVIDER=mock.`,
     );
     process.exit(1);
   }
