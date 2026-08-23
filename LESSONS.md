@@ -112,7 +112,7 @@ All three genuinely stopped the stream. Only the delivery differed.
 
 **Why it nearly slipped through.** The first version aborted after a fixed
 number of *events*. Claude sent the whole answer in 4 deltas, so the threshold
-of 8 was never reached and the section quietly demonstrated nothing while
+of 8 was never reached and the section demonstrated nothing while
 appearing to pass. Chunk granularity is an implementation detail that varies by
 an order of magnitude between providers. Counting characters instead made the
 section behave the same on all three.
@@ -197,7 +197,7 @@ total?" produced this as the final answer:
 > beyond this list.
 
 A sensible sentence, and useless as a returned answer. The model still wanted
-another lookup, and the final turn had quietly removed its ability to ask for
+another lookup, and the final turn had removed its ability to ask for
 one without telling it.
 
 **What we did.** Gave the final turn its own system prompt saying the tools are
