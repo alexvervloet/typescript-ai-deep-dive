@@ -14,7 +14,7 @@ and the one that will take your server down.*
 
 There is a widely held belief that AI engineering happens in Python, and it has
 the shape of most widely held beliefs: it was true, it is becoming less true, and
-the part that remains true is narrower and more specific than the belief.
+what remains true is narrower and more specific than the belief.
 
 The part that remains true is training. If you are fine-tuning a model, applying
 LoRA adapters, quantizing weights, or doing anything else that touches the
@@ -205,7 +205,7 @@ with nothing on the page to see, which makes it one of the few situations where
 the right answer really is a lint rule:
 `@typescript-eslint/no-floating-promises`.
 
-## One thread, and the thing nobody tells you
+## One thread, and what it costs you
 
 Node's defining characteristic is that your JavaScript runs on a single thread
 with an event loop. This is why it is good at exactly the workload an LLM
@@ -245,7 +245,7 @@ The `unknown` boundary is the good part, and it reads as friction for about a
 week. Everything arriving from outside your program is unknown until parsed, a
 model's output most of all, and TypeScript will not let you pretend otherwise
 unless you explicitly lie to it with `as`. Python with Pydantic reaches the same
-place; the difference is that here you cannot quietly skip the step and still
+place; the difference is that here you cannot skip the step and still
 read the value.
 
 The standard-library and ecosystem gaps are real and smaller than their
