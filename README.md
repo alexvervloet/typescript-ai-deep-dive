@@ -1,21 +1,18 @@
 # AI Engineering in TypeScript: A Guided Deep Dive
 
-A hands-on companion to the [AI Engineering deep dive series](#the-series), for
-people who build with LLMs in **TypeScript** instead of Python. Every concept is
-a small, runnable script; every section ends with something to run; almost all of
-it runs offline and free on a built-in mock model. No frameworks, and just enough
-code to see how each piece works.
+A hands-on companion to the [AI Engineering deep dive series](#the-series), for people who
+build with LLMs in TypeScript instead of Python. Every concept is a small runnable script.
+Every section ends with something to run. Almost all of it runs offline and free on a
+built-in mock model. No frameworks, just enough code to see how each piece works.
 
-This repo is **standalone**: it teaches everything it needs on its own, and does
-not assume you have done the Python dives. Where the contrast is genuinely
-instructive, it says "in Python this is X" and moves on. If you have done the
-Python dives, those asides are the shortest path through; if you have not, skip
-them and nothing is missing.
+This repo is standalone. It teaches everything it needs on its own and assumes nothing about
+whether you have done the Python dives. Where the contrast is genuinely instructive, it says
+"in Python this is X" and moves on. If you have done the Python dives, those asides are the
+shortest path through. If you have not, skip them and nothing is missing.
 
-Like its siblings, it is meant to be *walked through*.
-[EXERCISES.md](EXERCISES.md) has a predict-then-run prompt for each section, and
-[TEXTBOOK.md](TEXTBOOK.md) is the same material as prose if you would rather read
-than run.
+Like its siblings, walk through it. [EXERCISES.md](EXERCISES.md) has a predict-then-run
+prompt for each section, and [TEXTBOOK.md](TEXTBOOK.md) is the same material as prose if you
+would rather read than run.
 
 ---
 
@@ -202,8 +199,8 @@ first-class `response_format`, Anthropic has no equivalent and the documented
 route is to define one tool and force the model to call it. Structured output
 turns out to be tool use wearing a hat.
 
-And then the part the example exists for. Add a required `vatNumber` to the
-schema and hand it a receipt that does not have one:
+Then comes the case the example exists for. Add a required `vatNumber` to the schema and
+hand it a receipt that does not have one:
 
 | model | value returned |
 |---|---|
@@ -299,8 +296,8 @@ A token stream is exactly an async iterable, so consuming one is a `for await`
 loop that reads like the synchronous loop it replaced. Time to first token is the
 number streaming actually improves; the total does not get shorter.
 
-Cancellation is the half people skip and the half that matters. And this is where
-the example earned its keep, because the three stacks do not agree:
+Cancellation is the half people skip and the half that matters. It is also where this
+example paid for itself, because the three stacks do not agree:
 
 | stack | on `controller.abort()` mid-stream |
 |---|---|
@@ -398,11 +395,11 @@ npx tsx examples/11_tokens_and_bytes.ts
 PROVIDER=openai secrun npx tsx examples/11_tokens_and_bytes.ts   # adds the check below
 ```
 
-`tiktoken` becomes `gpt-tokenizer`, a pure-JavaScript port that gives the same
-numbers for OpenAI models and is slower. With a key, the example checks the port
-against reality: it counted 26 tokens, the provider billed 32. The six-token gap
-is not a bug, it is the chat scaffolding around your string, and it is why a
-local count is a good estimate and a bad invoice.
+`tiktoken` becomes `gpt-tokenizer`, a pure-JavaScript port that gives the same numbers for
+OpenAI models and is slower. With a key, the example checks the port against reality. It
+counted 26 tokens and the provider billed 32. The six-token gap is the chat scaffolding
+around your string rather than a bug, and it is why a local count is a good estimate and a
+bad invoice.
 
 Bytes go the other way. Python needs
 `base64.standard_b64encode(data).decode("ascii")`, two steps because bytes and
@@ -538,10 +535,10 @@ The honest version, from what this repo measured rather than from taste.
 
 Two things this repo would not have predicted before measuring:
 
-**The `unknown` boundary is a feature.** It looks like friction for a week and
-then it is the reason a wrong-typed field from a model becomes a log line instead
-of a corrupted row. Python with Pydantic gets to the same place; the difference
-is that in TypeScript you cannot quietly skip it and still read the value.
+**The `unknown` boundary is a feature.** It looks like friction for a week, and then it is
+the reason a wrong-typed field from a model becomes a log line instead of a corrupted row.
+Python with Pydantic gets to the same place. The difference is that in TypeScript you cannot
+skip the check and still read the value.
 
 **The single event loop is the real thing to learn.** Not the syntax, not the
 ecosystem. It is the one place where a habit carried over from Python produces an
