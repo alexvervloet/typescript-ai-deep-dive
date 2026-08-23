@@ -167,8 +167,8 @@ extra field?
 It accepts, and silently drops `confidence`. Zod strips unknown keys by default.
 
 `.strict()` turns the unexpected key into an error instead. Neither is wrong. The
-mistake is not knowing which one you picked, because one of them is quietly
-throwing away data a model went to the trouble of producing.
+mistake is not knowing which one you picked, because one of them is
+throwing away data a model went to the trouble of producing, and never says so.
 </details>
 
 **Do.** Change `total: z.number()` to `total: z.coerce.number()` in
@@ -292,7 +292,7 @@ property you want: adding to a union breaks exactly the code that made a claim
 about the whole union, and leaves alone the code that did not.
 
 Worth knowing: `tsai/providers.ts` only reports because this exercise was
-*run*. The `never` check there was missing until then, and the switch quietly
+*run*. The `never` check there was missing until then, and the switch
 returned `undefined` for an unhandled block, because the function's return type
 is `unknown` and `unknown` accepts `undefined`. A demonstration in `examples/06`
 does not protect the library; the check has to be in the library.
