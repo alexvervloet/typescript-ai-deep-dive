@@ -1,7 +1,7 @@
 /**
  * tsai/types.ts: the shapes every other file agrees on.
  *
- * This is the file where TypeScript actually earns its keep, so it is worth
+ * This is the file where TypeScript actually pays for itself, so it is worth
  * reading before any of the code that uses it.
  *
  * A model's reply is not a string. It is a list of **typed content blocks**: some
