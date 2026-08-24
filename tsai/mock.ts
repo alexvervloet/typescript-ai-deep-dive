@@ -101,7 +101,7 @@ const STRUCTURED: Record<string, unknown> = {
  *
  * Deliberately not canned: if the tools found nothing, `answeredFromTools` is
  * false and the answer says so. An offline mock that always claimed confident,
- * tool-grounded answers would quietly break the one check the capstone prints a
+ * tool-grounded answers would break the one check the capstone prints a
  * warning for.
  */
 function answerFromToolResults(
