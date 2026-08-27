@@ -1,8 +1,8 @@
 /**
  * tsai/types.ts: the shapes every other file agrees on.
  *
- * This is the file where TypeScript actually pays for itself, so it is worth
- * reading before any of the code that uses it.
+ * This is where TypeScript stops being annotation and starts catching mistakes,
+ * so it is worth reading before any of the code that uses it.
  *
  * A model's reply is not a string. It is a list of **typed content blocks**: some
  * text, maybe a request to call a tool, maybe an image you sent back. In Python
