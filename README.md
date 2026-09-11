@@ -6,13 +6,13 @@ Every section ends with something to run. Almost all of it runs offline and free
 built-in mock model. No frameworks, just enough code to see how each piece works.
 
 This repo is standalone. It teaches everything it needs on its own and assumes nothing about
-whether you have done the Python dives. Where the contrast is genuinely instructive, it says
-"in Python this is X" and moves on. If you have done the Python dives, those asides are the
-shortest path through. If you have not, skip them and nothing is missing.
+whether you've done the Python dives. Where the contrast is genuinely instructive, it says
+"in Python this is X" and moves on. If you've done the Python dives, those asides are the
+shortest path through. If you haven't, skip them and nothing is missing.
 
 Like its siblings, walk through it. [EXERCISES.md](EXERCISES.md) has a predict-then-run
-prompt for each section, and [TEXTBOOK.md](TEXTBOOK.md) is the same material as prose if you
-would rather read than run.
+prompt for each section, and [TEXTBOOK.md](TEXTBOOK.md) is the same material as prose if you'd
+rather read than run.
 
 ---
 
@@ -21,19 +21,19 @@ would rather read than run.
 > **Your types stop at the network boundary. Everything a model hands back is
 > `unknown` until you check it at runtime, and everything you send is a promise.**
 
-That is the whole repo. TypeScript is genuinely good at LLM work, better than
+That's the whole repo. TypeScript is genuinely good at LLM work, better than
 Python in a few specific places, and the one thing that surprises people arriving
 from Pydantic is that **TypeScript's types are erased before the program runs.**
 `tsc` checks your code and then throws every type away. What executes is
 JavaScript, and it has never heard of your interfaces.
 
-For values you construct, that is fine: the compiler already checked them. For
+For values you construct, that's fine: the compiler already checked them. For
 values that *arrive*, it means the annotation is a claim with nothing behind it,
 and the most arriving-est value in your codebase is whatever the model just said.
 So the discipline this repo teaches is: parse at the boundary, narrow everything
 else, and let the compiler enforce that you did.
 
-The second half, promises, is smaller but touches every line. There is no
+The second half, promises, is smaller but touches every line. There's no
 synchronous version of anything, which costs you an `await` on hello-world and
 hands you concurrency for free.
 
@@ -55,7 +55,7 @@ npm install
 cp .env.example .env
 ```
 
-You need **Node 22 or newer**. That is what gives you `process.loadEnvFile`, a
+You need **Node 22 or newer**. That's what gives you `process.loadEnvFile`, a
 stable `fetch`, `AbortSignal.any`, and a built-in test runner, all of which this
 repo uses instead of a dependency.
 
@@ -70,7 +70,7 @@ discriminated unions, validation, the event loop and the standard-library gap ar
 all visible offline, and paying for tokens to demonstrate `for await` would be
 silly. Example 05 is the exception and says so.
 
-> **Your API key does not go in `.env`.** Store it in your OS keychain and inject
+> **Your API key doesn't go in `.env`.** Store it in your OS keychain and inject
 > it per command with `secrun`: two-minute setup in [SECRETS.md](../docs/SECRETS.md).
 > If you select a real provider and the key is missing, the repo degrades to the
 > mock **loudly**, with a banner and a `FALLBACK` note on every provider line, so
@@ -99,10 +99,10 @@ receipt.total + 2.50                        "12.402.5"  <- silently concatenated
 receipt.total.toFixed(2)                    TypeError
 ```
 
-The lesson is not "it breaks." It is that JavaScript's coercion makes the first
+The lesson isn't "it breaks." It's that JavaScript's coercion makes the first
 line *right*, which is why the bug survives review and your first ten thousand
 receipts, and why the one that finally throws does so in innocent reporting code
-hours later. `as` is not a check. It is you telling the compiler to stop asking.
+hours later. `as` isn't a check. It's you telling the compiler to stop asking.
 
 ---
 
@@ -113,18 +113,18 @@ npx tsx examples/02_the_same_call.ts                          # offline mock
 PROVIDER=openai secrun npx tsx examples/02_the_same_call.ts   # real
 ```
 
-Before cataloguing differences it is worth seeing how few there are at the API
+Before cataloguing differences it's worth seeing how few there are at the API
 level. Both official SDKs are maintained alongside their Python siblings, with
 the same method names and the same request fields. `client.chat.completions.create(...)`
 is the Python line with an `await` in front of it.
 
 Two things are new, and both are in the file: every call returns a Promise, and
-there is no `asyncio.run(main())`, because an ES module can `await` at the top
+there's no `asyncio.run(main())`, because an ES module can `await` at the top
 level. The file *is* the async function.
 
 ---
 
-## 4. Async is not a mode you opt into
+## 4. Async isn't a mode you opt into
 
 ```bash
 npx tsx examples/03_async_by_default.ts        # offline
@@ -141,7 +141,7 @@ all at once  await Promise.all(qs.map(ask))          42ms
 at most 2    await mapLimit(qs, 2, ask)             124ms
 ```
 
-The parallel version is not an optimization you added. It is what you get when
+The parallel version isn't an optimization you added. It's what you get when
 the language has no blocking call to offer.
 
 Then the two sharp edges, both ordinary code with no compile error:
@@ -151,7 +151,7 @@ the sixth fails, which for a batch of model calls is almost never what you meant
 
 ---
 
-## 5. Parse, do not assume
+## 5. Parse, don't assume
 
 ```bash
 npx tsx examples/04_parse_dont_assume.ts       # offline
@@ -170,14 +170,14 @@ Zod parse:
 
 The section that matters most is the return type. `parseModelJson` gives you
 `{ ok: true, value: T } | { ok: false, error: string }`, so reaching `.value`
-without checking `.ok` **does not compile**. You cannot write the bug where you
+without checking `.ok` **doesn't compile**. You can't write the bug where you
 validate and then use the unchecked variable anyway.
 
 It also puts real numbers on the two dials people set without noticing: Zod
-strips unknown keys by default (`.strict()` if you would rather hear about them),
+strips unknown keys by default (`.strict()` if you'd rather hear about them),
 and `z.coerce.number()` rescues `"12.40"` while still rejecting `"about twelve"`.
 Coercion is a real tool with a real cost: it keeps the pipeline running and it
-guarantees you will never find out your prompt started returning strings.
+guarantees you'll never find out your prompt started returning strings.
 
 ---
 
@@ -200,7 +200,7 @@ route is to define one tool and force the model to call it. Structured output
 turns out to be tool use wearing a hat.
 
 Then comes the case the example exists for. Add a required `vatNumber` to the schema and
-hand it a receipt that does not have one:
+hand it a receipt that doesn't have one:
 
 | model | value returned |
 |---|---|
@@ -211,11 +211,11 @@ Neither hallucinated a fake VAT number, which is better than this example
 originally predicted. The problem is subtler and worse: **each model invents its
 own private encoding for "absent", and `z.string()` accepts all of them.**
 Nothing documents `"<UNKNOWN>"`; nothing stops it changing next model version.
-The schema did not prevent the bad value, it guaranteed the bad value would be a
+The schema didn't prevent the bad value, it guaranteed the bad value would be a
 string.
 
-The fix is in the schema, not the prompt: `z.string().nullable()` makes "I did
-not find it" a legal answer, and both models then return `null`. Every required
+The fix is in the schema, not the prompt: `z.string().nullable()` makes "I didn't
+find it" a legal answer, and both models then return `null`. Every required
 field is a question the model is forbidden to duck.
 
 ---
@@ -235,7 +235,7 @@ of a discriminated union, so `block.type === "tool_use"` narrows it, reading
 `.text` off that branch is a compile error, and an exhaustive `switch` with a
 `never` check breaks the build the day someone adds a variant.
 
-The example does not claim this. It runs `tsc` on files in `broken/` that get it
+The example doesn't claim this. It runs `tsc` on files in `broken/` that get it
 wrong and prints the actual output:
 
 ```
@@ -243,12 +243,12 @@ broken/missing_case.ts(29,13): error TS2322: Type 'ToolResultBlock' is not assig
 broken/wrong_field.ts(27,18): error TS2339: Property 'text' does not exist on type 'ToolUseBlock'.
 ```
 
-The compiler did not say "you missed a case." It said **which** case, by name.
+The compiler didn't say "you missed a case." It said **which** case, by name.
 
 The honest limit is in the last section: what got checked is that your code
 agrees with your declared union. Nothing checked that the provider's JSON agrees
 with either. The SDKs' own response types are hand-written descriptions of an
-API, shipped in a package. They are a claim. Which is why `ToolUseBlock.input` is
+API, shipped in a package. They're a claim. Which is why `ToolUseBlock.input` is
 typed `unknown`.
 
 ---
@@ -260,7 +260,7 @@ npx tsx examples/07_tool_args_are_untrusted.ts        # offline
 ```
 
 The agent loop is four lines of control flow. The interesting part is "you run
-it," because that is where a model's output stops being text and becomes
+it," because that's where a model's output stops being text and becomes
 something your process does. Anything in the conversation shapes those arguments,
 including a document the user uploaded.
 
@@ -275,9 +275,9 @@ an injected instruction  rejected: an order id looks like A-1003
 The last two are why the schema is `z.string().regex(/^A-\d{4}$/)` and not
 `z.string()`. Both were perfectly valid strings. In this repo they would have
 harmlessly failed a lookup; in a system that builds a path or a query out of that
-argument, they are the whole attack. **Validate the shape, then constrain the
+argument, they're the whole attack. **Validate the shape, then constrain the
 range.** The schema is the only place in an agent where you get to say what the
-model is allowed to ask for, and "a string" is not an answer.
+model is allowed to ask for, and "a string" isn't an answer.
 
 The same section shows the unguarded version crashing with
 `TypeError: id.trim is not a function` three frames from the mistake, which is
@@ -294,15 +294,15 @@ npx tsx examples/08_streaming_and_cancelling.ts       # offline
 
 A token stream is exactly an async iterable, so consuming one is a `for await`
 loop that reads like the synchronous loop it replaced. Time to first token is the
-number streaming actually improves; the total does not get shorter.
+number streaming actually improves; the total doesn't get shorter.
 
-Cancellation is the half people skip and the half that matters. It is also where this
-example paid for itself, because the three stacks do not agree:
+Cancellation is the half people skip and the half that matters. It's also where this
+example paid for itself, because the three stacks don't agree:
 
 | stack | on `controller.abort()` mid-stream |
 |---|---|
 | mock | throws, `error.name === "AbortError"` |
-| openai | does not throw at all, the `for await` loop simply ends |
+| openai | doesn't throw at all, the `for await` loop simply ends |
 | claude | throws `APIUserAbortError("Request was aborted.")`, whose `.name` is `"Error"` |
 
 All three stopped the stream. Only the delivery differed. So
@@ -317,13 +317,13 @@ if (controller.signal.aborted) { ... }      // it might not
 That second check is also the only thing that tells a truncated answer apart from
 a complete one before you cache it or show it.
 
-The section ends on what streaming costs: you cannot validate what you have
-already shown, and half a JSON object does not parse. Both are why the capstone
+The section ends on what streaming costs: you can't validate what you've
+already shown, and half a JSON object doesn't parse. Both are why the capstone
 streams prose and does tool rounds unstreamed.
 
 ---
 
-## 10. Errors you did not catch, and one nobody did
+## 10. Errors you didn't catch, and one nobody did
 
 ```bash
 npx tsx examples/09_errors_and_retries.ts      # offline
@@ -331,12 +331,12 @@ npx tsx examples/09_errors_and_retries.ts      # offline
 
 Three things change. Two are a fair trade and one is a hazard.
 
-**You do not know what you caught.** Under `strict`, a caught value is `unknown`,
+**You don't know what you caught.** Under `strict`, a caught value is `unknown`,
 because `throw "nope"` is legal JavaScript. Python can promise you an exception
 object; JavaScript made no such rule. So you narrow, and the example shows the
-narrowing function you will write a hundred times.
+narrowing function you'll write a hundred times.
 
-**Retrying is yours.** There is no `tenacity`. Twenty lines gets you
+**Retrying is yours.** There's no `tenacity`. Twenty lines gets you
 retry-what-is-worth-retrying, exponential backoff, jitter, and a deadline. Both
 SDKs retry automatically, which covers the simple case and not a stream that died
 after the first token.
@@ -356,7 +356,7 @@ configuration change from this repo into a real project, make it
 
 ---
 
-## 11. The standard library you are missing
+## 11. The standard library you're missing
 
 ```bash
 npx tsx examples/10_the_stdlib_gap.ts
@@ -383,8 +383,8 @@ Node has `Buffer` and `DataView` and expects you to know the file format. And
 install and no config file. This repo's own tests (`npm test`) are seven of them.
 
 Add it up and "missing batteries" is one afternoon of small helpers plus one
-genuine hole. It is not the reason to pick a language, and it is worth measuring
-because it is the first objection raised.
+genuine hole. It isn't the reason to pick a language, and it's worth measuring
+because it's the first objection raised.
 
 ---
 
@@ -398,15 +398,15 @@ PROVIDER=openai secrun npx tsx examples/11_tokens_and_bytes.ts   # adds the chec
 `tiktoken` becomes `gpt-tokenizer`, a pure-JavaScript port that gives the same numbers for
 OpenAI models and is slower. With a key, the example checks the port against reality. It
 counted 26 tokens and the provider billed 32. The six-token gap is the chat scaffolding
-around your string rather than a bug, and it is why a local count is a good estimate and a
+around your string rather than a bug, and it's why a local count is a good estimate and a
 bad invoice.
 
 Bytes go the other way. Python needs
 `base64.standard_b64encode(data).decode("ascii")`, two steps because bytes and
-str are different types. `Buffer` is both, so it is one call each direction, and
+str are different types. `Buffer` is both, so it's one call each direction, and
 every image you ever send a model goes through exactly that.
 
-Where it is worse is reading a binary header. Python: `struct.unpack(">II", data[16:24])`.
+Where it's worse is reading a binary header. Python: `struct.unpack(">II", data[16:24])`.
 Node: a `DataView` and you specify the endianness yourself, where getting it
 wrong yields a plausible number rather than an error.
 
@@ -435,7 +435,7 @@ Python's GIL does. Measured, by polling `/health` from a separate process:
 
 The middle row is the normal case and the reason Node suits an LLM gateway: a
 handler that `await`s is off the loop entirely, so a hundred concurrent model
-calls cost almost nothing but memory. The bottom row is the caveat, and it is
+calls cost almost nothing but memory. The bottom row is the caveat, and it's
 worse than "slow": a blocking handler occupies the *entire process*, where a
 blocking handler under uvicorn occupies one worker of several.
 
@@ -445,7 +445,7 @@ it under the word "stalled." The busy loop had blocked the measuring code too:
 its `setTimeout(..., 20)` fired at 401ms. **The stall is invisible from inside
 the process that is stalled**, which generalizes to your health endpoint, your
 timeouts, your metrics flush and your SIGTERM handler. A Node service that blocks
-its loop does not look degraded until something outside it notices.
+its loop doesn't look degraded until something outside it notices.
 
 ---
 
@@ -455,7 +455,7 @@ its loop does not look degraded until something outside it notices.
 npx tsx examples/13_ecosystem_check.ts         # needs network, no key
 ```
 
-"The AI tooling is all in Python" is the objection this dive gets. It is half
+"The AI tooling is all in Python" is the objection this dive gets. It's half
 true, so the example asks PyPI and npm directly, live, and reports what exists
 and when it was last published.
 
@@ -477,12 +477,12 @@ Three-part answer, and it keeps reproducing:
 - **Application-layer work ports cleanly.** Validation, tokenizing, tracing,
   retrieval, agent graphs, evals: real, maintained packages, several of them
   first-party.
-- **Framework-layer work is thinner.** Younger, smaller, a release behind. You
-  will hit a missing feature eventually.
-- **Training does not port at all.** PyTorch, PEFT, TRL and MLX are Python down
+- **Framework-layer work is thinner.** Younger, smaller, a release behind. You'll
+  hit a missing feature eventually.
+- **Training doesn't port at all.** PyTorch, PEFT, TRL and MLX are Python down
   to the CUDA bindings, and nothing is coming.
 
-The example also explains why there is deliberately no PyPI download column, and
+The example also explains why there's deliberately no PyPI download column, and
 what happened when it tried to fetch one with `Promise.all` (a live 429, from the
 same lesson section 4 just taught).
 
@@ -509,7 +509,7 @@ Ctrl-C and `--timeout` that cancels all of it.
 
 Read [hands_on/ask.ts](hands_on/ask.ts); the header maps each part back to the
 example that taught it. One design decision is worth understanding before you
-copy it: **tool rounds are not streamed, the final answer is.** You cannot act on
+copy it: **tool rounds aren't streamed, the final answer is.** You can't act on
 half a tool call, so the loop runs unstreamed until the model stops asking for
 tools, then makes one streamed call for the prose.
 
@@ -528,20 +528,20 @@ The honest version, from what this repo measured rather than from taste.
 
 | Reach for TypeScript when | Reach for Python when |
 |---|---|
-| The model call lives inside a web app you already ship in TypeScript | You are training, fine-tuning, or quantizing anything |
-| You are streaming to a browser (the client story is genuinely better) | Your work is numerical, or leans on numpy/pandas/scipy |
+| The model call lives inside a web app you already ship in TypeScript | You're training, fine-tuning, or quantizing anything |
+| You're streaming to a browser (the client story is genuinely better) | Your work is numerical, or leans on numpy/pandas/scipy |
 | You want one language across API, worker and frontend | You need a framework feature only the Python version has |
-| Your team's review culture already leans on the type checker | You are following along with research code |
+| Your team's review culture already leans on the type checker | You're following along with research code |
 
-Two things this repo would not have predicted before measuring:
+Two things this repo wouldn't have predicted before measuring:
 
-**The `unknown` boundary is a feature.** It looks like friction for a week, and then it is
+**The `unknown` boundary is a feature.** It looks like friction for a week, and then it's
 the reason a wrong-typed field from a model becomes a log line instead of a corrupted row.
-Python with Pydantic gets to the same place. The difference is that in TypeScript you cannot
+Python with Pydantic gets to the same place. The difference is that in TypeScript you can't
 skip the check and still read the value.
 
 **The single event loop is the real thing to learn.** Not the syntax, not the
-ecosystem. It is the one place where a habit carried over from Python produces an
+ecosystem. It's the one place where a habit carried over from Python produces an
 outage rather than an inconvenience.
 
 Everything else is smaller than its reputation.
@@ -556,19 +556,19 @@ Everything else is smaller than its reputation.
   for stateful agent graphs, and [LlamaIndex.TS](https://ts.llamaindex.ai) for
   retrieval.
 - **Evals.** Nothing in this repo checks whether an answer is *right*. Zod
-  validates that it is well-formed. [promptfoo](https://promptfoo.dev) is
+  validates that it's well-formed. [promptfoo](https://promptfoo.dev) is
   Node-native and the natural next tool.
 - **Edge and serverless runtimes.** Cloudflare Workers, Deno Deploy and Vercel
   functions run this code with small changes, which is a place TypeScript has no
   Python equivalent. Watch for `node:` builtins, which is mostly what changes.
 - **Bun and Deno.** Both run this repo's code. Both bundle a test runner and TS
-  execution without `tsx`. Node is what these examples use because it is the most
-  transferable, not because it is the best of the three at this.
+  execution without `tsx`. Node is what these examples use because it's the most
+  transferable, not because it's the best of the three at this.
 - **The browser half.** Streaming to `EventSource`, cancelling on unmount,
   rendering partial markdown safely. Section 13 is the server side of a story
   whose other half is where TypeScript is unmatched.
 - **TypeScript 7.** The compiler is being ported to Go, with large speedups. This
-  repo pins TypeScript 5 because that is what is stable; nothing here would need
+  repo pins TypeScript 5 because that's what's stable; nothing here would need
   to change.
 
 ---
@@ -592,8 +592,8 @@ The shortcuts this repo takes on purpose, and what replaces them:
 The general operational machinery (observability, cost, caching, guardrails,
 prompt versioning, eval gates) is built from scratch and wired into one running
 app in the [Production dive](https://github.com/alexvervloet/ai-in-production-deep-dive),
-in Python. The ideas port directly; sections 10 and 13 here are the parts that do
-not.
+in Python. The ideas port directly; sections 10 and 13 here are the parts that
+don't.
 
 ---
 
@@ -644,15 +644,15 @@ problems. Then, by symptom:
 
 | What you see | What it means / the fix |
 |---|---|
-| `ERR_MODULE_NOT_FOUND` on a `.ts` import | Imports need the extension, and it is `.ts` here. That is `"module": "NodeNext"` plus `allowImportingTsExtensions`, and it is what lets `tsx` and Node's own type stripping both work. |
+| `ERR_MODULE_NOT_FOUND` on a `.ts` import | Imports need the extension, and it's `.ts` here. That's `"module": "NodeNext"` plus `allowImportingTsExtensions`, and it's what lets `tsx` and Node's own type stripping both work. |
 | `Cannot determine intended module format` | A `require()` and a top-level `await` in the same file. This repo is ESM only; use `import`. |
 | `PROVIDER=... is set but ... is not on the environment` | The loud mock fallback. Run under `secrun` for the real model, or `PROVIDER_STRICT=1` to make it an error. See [SECRETS.md](../docs/SECRETS.md). |
-| Example 05 prints "stopping here" | Working as intended on `PROVIDER=mock`. It is the one example that needs a real model. |
+| Example 05 prints "stopping here" | Working as intended on `PROVIDER=mock`. It's the one example that needs a real model. |
 | `npx tsc` installs some other package | You ran it outside the repo. `cd` in first, or use `npm run typecheck`. |
 | Example 06 or 09 prints no compiler errors | The `broken/` fixtures stopped being broken, which is itself a bug. `npx tsc -p broken` should always fail. |
 | Example 13 shows `?` or "could not reach" | It needs network access (no key). The registries also rate-limit; the example explains what it does about that. |
 | `SyntaxError` on startup, or types not stripped | Node older than 22. `check_setup.ts` confirms your version. |
-| A number that should be a number is a string | You are in example 01, in real life. Parse it. |
+| A number that should be a number is a string | You're in example 01, in real life. Parse it. |
 
 Still stuck? Every file is small and self-contained. Open it, read the comment at
 the top, and run it directly. [tsai/schema.ts](tsai/schema.ts) is the whole
@@ -664,11 +664,11 @@ argument in one file.
 
 This repo is a **companion** to a series of standalone, hands-on deep dives into
 building with LLM APIs, which are taught in Python: eight core dives and a set of
-bonus ones. It is not a step in that sequence and nothing in the sequence depends
+bonus ones. It isn't a step in that sequence and nothing in the sequence depends
 on it. It exists for the reader who has decided, or been told, that their AI work
 ships in TypeScript.
 
-The concepts are the same either way, and they are the point. If you want to go
+The concepts are the same either way, and they're the point. If you want to go
 deeper on any subject this repo only touches, the Python dive on it goes much
 further:
 
