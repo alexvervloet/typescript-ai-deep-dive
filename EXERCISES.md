@@ -1,6 +1,6 @@
 # Exercises: make the learning stick
 
-Reading code teaches you less than *predicting* what it will do and then checking.
+Reading code teaches you less than *predicting* what it'll do and then checking.
 This file turns each section of the [README](README.md) into a few quick
 active-recall prompts.
 
@@ -23,10 +23,10 @@ where `total` is declared `number`. What does `receipt.total * 0.21` print?
 
 `2.604`. The arithmetically **correct** VAT on 12.40.
 
-If you predicted `NaN`, you are in good company: so did the first draft of the
+If you predicted `NaN`, you're in good company: so did the first draft of the
 example, and its output contradicted its own prose on the first run (see
 [LESSONS.md](LESSONS.md) entry 1). JavaScript coerces a numeric string for `*`.
-That is what makes this bug survive: the first place you use the value, it works.
+That's what makes this bug survive: the first place you use the value, it works.
 </details>
 
 **Recall.** Same bad value, four operations. Which one throws?
@@ -43,7 +43,7 @@ already written to your database.
 </details>
 
 **Do.** Change `total` in the example's `MODEL_REPLY` to `"twelve"` and rerun.
-Which of the four lines changes behavior, and which does not?
+Which of the four lines changes behavior, and which doesn't?
 
 <details><summary>▸ Answer</summary>
 
@@ -59,17 +59,17 @@ dangerous one.
 
 ## Section 3: The call itself
 
-**Recall.** What is the TypeScript equivalent of `asyncio.run(main())` at the
+**Recall.** What's the TypeScript equivalent of `asyncio.run(main())` at the
 bottom of a Python script?
 
 <details><summary>▸ Answer</summary>
 
-Nothing. There is no equivalent and none is needed. In an ES module you can
+Nothing. There's no equivalent and none is needed. In an ES module you can
 `await` at the top level of the file; the module system handles it. `examples/02`
 has no `main()` and no entry-point guard.
 
 The one thing to know: this is an ESM feature. In CommonJS (a `.cjs` file, or a
-package without `"type": "module"`) top-level await does not exist and you need
+package without `"type": "module"`) top-level await doesn't exist and you need
 the async IIFE wrapper you may have seen in older code.
 </details>
 
@@ -98,7 +98,7 @@ the wall clock for sequential, `Promise.all`, and a limit of 2.
 
 About 240ms, about 40ms, about 120ms. The measured run: 248ms, 42ms, 124ms.
 
-The point is not the speedup. It is that the fast version is what you get by
+The point isn't the speedup. It's that the fast version is what you get by
 default, because the language has no blocking call to offer.
 </details>
 
@@ -116,7 +116,7 @@ console.log(collected.length);
 `forEach` predates promises. It calls your function, receives a Promise, and
 discards it. The loop "completes" instantly with nothing done, and any error
 inside becomes an unhandled rejection with no stack trace pointing at this line.
-There is no compile error, because the callback is allowed to return anything.
+There's no compile error, because the callback is allowed to return anything.
 
 200ms later the abandoned promises have finished and the array has six entries.
 They ran. Nobody was waiting.
@@ -131,21 +131,21 @@ Zero. `Promise.all` rejects the moment any promise rejects, and the
 forty-nine successful answers are discarded with it.
 
 `Promise.allSettled` keeps them all and tells you which failed. For model calls,
-where one 503 in fifty is normal, that is almost always what you meant. Python's
+where one 503 in fifty is normal, that's almost always what you meant. Python's
 `asyncio.gather` spells the same fork `return_exceptions=True`.
 </details>
 
 ---
 
-## Section 5: Parse, do not assume **(offline)**
+## Section 5: Parse, don't assume **(offline)**
 
 **Recall.** Why is `ParseResult<T>` a union of `{ ok: true, value: T }` and
 `{ ok: false, error: string }` rather than a function that returns `T` and throws?
 
 <details><summary>▸ Answer</summary>
 
-Because you cannot reach `.value` without narrowing on `.ok`, and the compiler
-enforces it. Forgetting the check is not a discipline problem, it is a build
+Because you can't reach `.value` without narrowing on `.ok`, and the compiler
+enforces it. Forgetting the check isn't a discipline problem, it's a build
 failure:
 
 ```
@@ -153,7 +153,7 @@ error TS2339: Property 'value' does not exist on type 'ParseResult<...>'.
   Property 'value' does not exist on type '{ ok: false; error: string }'.
 ```
 
-That is the difference between a validator and a parser. A validator returns a
+That's the difference between a validator and a parser. A validator returns a
 boolean and leaves the unchecked value sitting there, still usable, still the
 wrong type.
 </details>
@@ -167,7 +167,7 @@ extra field?
 It accepts, and silently drops `confidence`. Zod strips unknown keys by default.
 
 `.strict()` turns the unexpected key into an error instead. Neither is wrong. The
-mistake is not knowing which one you picked, because one of them is
+mistake isn't knowing which one you picked, because one of them is
 throwing away data a model went to the trouble of producing, and never says so.
 </details>
 
@@ -178,11 +178,11 @@ you given up?
 <details><summary>▸ Answer</summary>
 
 Only "number as a string" flips from rejected to accepted, with `total = 12.4`.
-`"about twelve"` is still rejected, so coercion is not a blanket surrender.
+`"about twelve"` is still rejected, so coercion isn't a blanket surrender.
 
 What you gave up is the signal. The day your prompt starts returning strings for
 every number, a coercing schema will never tell you. Rule of thumb: coerce at the
-edges you do not control, stay strict on the ones you do, and keep the eval that
+edges you don't control, stay strict on the ones you do, and keep the eval that
 would notice the drift.
 </details>
 
@@ -223,17 +223,17 @@ incident into a log line.
 </details>
 
 **Do.** Design the schema for extracting a support ticket's `priority` from free
-text, where the source often does not state one. What is wrong with
+text, where the source often doesn't state one. What's wrong with
 `z.enum(["low", "medium", "high"])`?
 
 <details><summary>▸ Answer</summary>
 
 It forces a guess. Every required field is a question the model is forbidden to
-duck, so a ticket with no stated priority gets one invented, and you cannot tell
+duck, so a ticket with no stated priority gets one invented, and you can't tell
 those apart from the real ones afterwards.
 
 Add the honest option: `z.enum(["low", "medium", "high", "unstated"])`, or make it
-`.nullable()`. Then "I do not know" is in the contract, your code can branch on
+`.nullable()`. Then "I don't know" is in the contract, your code can branch on
 it, and your types force you to handle it.
 </details>
 
@@ -252,7 +252,7 @@ const unhandled: never = block;
 It makes the switch exhaustive, checked at compile time. TypeScript narrows
 `block` by elimination, so if every variant is handled, the type remaining in
 `default` is `never` and the assignment is legal. Add a variant to the union and
-it stops being legal, in every switch that does not handle it, across the whole
+it stops being legal, in every switch that doesn't handle it, across the whole
 codebase, with no one remembering to look.
 
 The error names the case you forgot:
@@ -287,15 +287,15 @@ tsai/providers.ts(283,15):              Type 'ThinkingBlock' is not assignable t
 ```
 
 Nothing else. Code that only reads text blocks, or filters by type, keeps
-compiling because it was already handling the "not my variant" case. That is the
+compiling because it was already handling the "not my variant" case. That's the
 property you want: adding to a union breaks exactly the code that made a claim
-about the whole union, and leaves alone the code that did not.
+about the whole union, and leaves alone the code that didn't.
 
 Worth knowing: `tsai/providers.ts` only reports because this exercise was
 *run*. The `never` check there was missing until then, and the switch
 returned `undefined` for an unhandled block, because the function's return type
 is `unknown` and `unknown` accepts `undefined`. A demonstration in `examples/06`
-does not protect the library; the check has to be in the library.
+doesn't protect the library; the check has to be in the library.
 </details>
 
 ---
@@ -319,7 +319,7 @@ valid strings.
 
 The repo uses `z.string().regex(/^A-\d{4}$/)` instead, which accepts only the
 first. In this toy repo the other two would harmlessly fail a lookup. In a system
-that builds a file path or a query out of that argument, they are the whole
+that builds a file path or a query out of that argument, they're the whole
 attack.
 
 **Validate the shape, then constrain the range.** The schema is the only place in
@@ -334,9 +334,9 @@ sends `{ orderId: 1003 }`?
 `TypeError: id.trim is not a function`, thrown inside a helper three frames from
 the mistake, on a line with nothing wrong with it.
 
-And that is the **good** case. The bad case is a lookup that does not crash and
+And that's the **good** case. The bad case is a lookup that doesn't crash and
 silently returns "not found" for an order that exists, so a support agent tells a
-customer their order does not exist.
+customer their order doesn't exist.
 </details>
 
 ---
@@ -370,7 +370,7 @@ did catch the error?
 
 <details><summary>▸ Answer</summary>
 
-Because on the stack that does not throw, a cancelled generation looks exactly
+Because on the stack that doesn't throw, a cancelled generation looks exactly
 like a completed one. Without the check you cache it, show it, or feed it to the
 next step as if the model had finished talking.
 </details>
@@ -381,18 +381,18 @@ non-streaming one can?
 <details><summary>▸ Answer</summary>
 
 Because the answer is on the user's screen before the last token exists. A guard
-can only redact what it has not yet printed.
+can only redact what it hasn't yet printed.
 
 The options are all trades: buffer, check, then release (giving up most of the
-latency win), or stream and accept that a retraction is sometimes visible. There
-is no version where you get both.
+latency win), or stream and accept that a retraction is sometimes visible. There's
+no version where you get both.
 </details>
 
 ---
 
 ## Section 10: Errors and retries **(offline)**
 
-**Predict.** Under `strict`, what is the type of `error` here?
+**Predict.** Under `strict`, what's the type of `error` here?
 
 ```ts
 try { await chat(...) } catch (error) { ... }
@@ -408,7 +408,7 @@ value. Python's `except Exception as e` can promise you an exception object
 because Python only lets you raise those.
 </details>
 
-**Predict, then run.** What does this print, and what is the exit code?
+**Predict, then run.** What does this print, and what's the exit code?
 
 ```bash
 node -e 'Promise.reject(new Error("boom")); setTimeout(() => console.log("alive"), 100)'
@@ -423,12 +423,12 @@ Since Node 15 an unhandled rejection terminates the process. One forgotten
 a bad afternoon, takes down a server that was otherwise healthy. Python's
 equivalent prints "coroutine was never awaited" and carries on.
 
-The only reliable defense is a lint rule, because it is a mistake of omission and
-there is nothing on the page to review:
+The only reliable defense is a lint rule, because it's a mistake of omission and
+there's nothing on the page to review:
 `@typescript-eslint/no-floating-promises`.
 </details>
 
-**Recall.** Both SDKs retry automatically. Name a failure their retry does not
+**Recall.** Both SDKs retry automatically. Name a failure their retry doesn't
 cover.
 
 <details><summary>▸ Answer</summary>
@@ -465,7 +465,7 @@ All four. `node --test`, `node:util` `parseArgs`, `process.loadEnvFile`, and
 `node --test --experimental-test-coverage`.
 
 This is the row that surprises Python people, because pytest is better than
-`node:test` and pytest is not in Python's standard library. `npm test` in this
+`node:test` and pytest isn't in Python's standard library. `npm test` in this
 repo runs seven `.test.ts` files with no install, no config file, and no plugin
 to teach the runner about TypeScript or ES modules.
 </details>
@@ -479,19 +479,19 @@ prompt tokens for the same text. Which is wrong?
 
 <details><summary>▸ Answer</summary>
 
-Neither. A chat request is not a bare string: the role, the message boundaries
+Neither. A chat request isn't a bare string: the role, the message boundaries
 and the conversation scaffolding are tokens too, and that overhead is per
 message.
 
 Use the local count to decide what to send. Use `usage` to decide what it cost.
 </details>
 
-**Recall.** You want to enforce a token budget before sending. What is different
+**Recall.** You want to enforce a token budget before sending. What's different
 about doing that on Claude?
 
 <details><summary>▸ Answer</summary>
 
-There is no public Anthropic tokenizer to run locally. `gpt-tokenizer` implements
+There's no public Anthropic tokenizer to run locally. `gpt-tokenizer` implements
 OpenAI's vocabularies and nothing else, so on Claude you call the `count_tokens`
 endpoint, which is an API round trip.
 
@@ -522,12 +522,12 @@ same script and reported 2ms. Why?
 <details><summary>▸ Answer</summary>
 
 Because the measuring code was on the blocked loop too. Its `setTimeout(..., 20)`
-could not fire until the busy loop finished, so the health check went out *after*
+couldn't fire until the busy loop finished, so the health check went out *after*
 the stall was over and correctly measured nothing.
 
-The general form is the operational lesson: **a stalled Node process cannot
-report that it is stalled.** Your health endpoint, your request timeouts, your
-metrics flush and your SIGTERM handler are all on the loop that is not running.
+The general form is the operational lesson: **a stalled Node process can't
+report that it's stalled.** Your health endpoint, your request timeouts, your
+metrics flush and your SIGTERM handler are all on the loop that isn't running.
 It looks fine until something outside it notices.
 </details>
 
@@ -568,12 +568,12 @@ to npm ones?
 
 <details><summary>▸ Answer</summary>
 
-Because they are not the same unit. npm counts include every CI run and every
-transitive install; PyPI's do not. Side by side they would look rigorous and
+Because they aren't the same unit. npm counts include every CI run and every
+transitive install; PyPI's don't. Side by side they would look rigorous and
 argue nothing, which is exactly the kind of chart this series exists to avoid.
 
 The npm column stays because comparing `zod` to `@instructor-ai/instructor`
-*within* one registry is meaningful. And there is a second reason in the file:
+*within* one registry is meaningful. And there's a second reason in the file:
 pypistats returns 429 for a burst of nine lookups, which the example found out by
 doing it.
 </details>
@@ -587,13 +587,13 @@ answer. Why not stream the whole thing?
 
 <details><summary>▸ Answer</summary>
 
-Because you cannot act on half a tool call. Tool arguments arrive as JSON
-fragments and mean nothing until the last one lands, so there is no version where
+Because you can't act on half a tool call. Tool arguments arrive as JSON
+fragments and mean nothing until the last one lands, so there's no version where
 you start running a tool early. On OpenAI you reassemble those fragments per
 tool-call index yourself; Anthropic's SDK does it for you behind
 `finalMessage()`.
 
-That is the honest structure of the problem, not a workaround.
+That's the honest structure of the problem, not a workaround.
 </details>
 
 **Recall.** The final streamed call passes a *different* system prompt. What goes
@@ -601,7 +601,7 @@ wrong without it?
 
 <details><summary>▸ Answer</summary>
 
-The final call has no tools, and a model that still wanted a lookup does not know
+The final call has no tools, and a model that still wanted a lookup doesn't know
 that. On Claude, asking "How much has Rivera spent in total?" produced this as
 the final answer:
 
@@ -615,7 +615,7 @@ gone: "You have now received all the tool results you are going to get." See
 **If your loop changes what the model can do, say so in the prompt.**
 </details>
 
-**Do.** Run `--json` on a question the tools cannot answer, for example
+**Do.** Run `--json` on a question the tools can't answer, for example
 `npx tsx hands_on/ask.ts "What is the capital of France?" --json`. What does the
 output tell you, and which field carries it?
 
@@ -624,7 +624,7 @@ output tell you, and which field carries it?
 `answeredFromTools: false`, and the CLI prints a warning on stderr.
 
 That field exists because of Section 6's lesson: give the model a legal way to
-say "the source did not support this," and then act on it. Without the field the
+say "the source didn't support this," and then act on it. Without the field the
 model would still answer, and the answer would look identical to a grounded one.
 </details>
 
@@ -635,13 +635,13 @@ needs it.
 
 <details><summary>▸ Answer</summary>
 
-There is no single right schema, which is the point. `z.string()` is wrong.
+There's no single right schema, which is the point. `z.string()` is wrong.
 `z.string().min(2).max(40).regex(/^[\p{L}\s'-]+$/u)` is defensible: letters,
 spaces, apostrophes and hyphens, which fits real surnames and rejects
 `"Rivera; ignore previous instructions"` and `"../../etc/passwd"`.
 
 Notice what you had to do to write it: decide what a customer name actually *is*
-in your domain. That is the work, and no amount of type checking does it for you.
+in your domain. That's the work, and no amount of type checking does it for you.
 A schema is where a security decision gets written down.
 </details>
 
@@ -656,13 +656,13 @@ Why did nothing catch it?
 
 <details><summary>▸ Answer</summary>
 
-Because validation checks that an answer is *well-formed*, not that it is
+Because validation checks that an answer is *well-formed*, not that it's
 *right*. `{ answer: string, orderIds: string[], answeredFromTools: boolean }` was
 satisfied perfectly by a wrong sum.
 
 Only an eval catches that: a set of questions with known answers, scored on every
-change. It is the subject of the [Evals dive](https://github.com/alexvervloet/evals-deep-dive),
-and it is the thing this repo most conspicuously does not do.
+change. It's the subject of the [Evals dive](https://github.com/alexvervloet/evals-deep-dive),
+and it's the thing this repo most conspicuously doesn't do.
 
 Worth holding onto as the boundary of everything here: the type system stops
 malformed data, Zod stops mistyped data, and neither has an opinion about
