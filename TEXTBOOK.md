@@ -1,6 +1,6 @@
 # Writing It in TypeScript
 
-*This is the reading companion to the TypeScript deep dive. It is deliberately
+*This is the reading companion to the TypeScript deep dive. It's deliberately
 not a numbered chapter of the series textbook: the series teaches AI engineering
 in Python, and this is the aside for people whose work ships in TypeScript
 instead. The [README](README.md) is the lab manual; this is the lecture. It
@@ -10,19 +10,19 @@ and the one that will take your server down.*
 
 ---
 
-## The question, and why it is not silly
+## The question, and why it isn't silly
 
-There is a widely held belief that AI engineering happens in Python, and it has
-the shape of most widely held beliefs: it was true, it is becoming less true, and
+There's a widely held belief that AI engineering happens in Python, and it has
+the shape of most widely held beliefs: it was true, it's becoming less true, and
 what remains true is narrower and more specific than the belief.
 
-The part that remains true is training. If you are fine-tuning a model, applying
+The part that remains true is training. If you're fine-tuning a model, applying
 LoRA adapters, quantizing weights, or doing anything else that touches the
-tensors, you are in Python, and you will stay there. PyTorch, PEFT, TRL and MLX
+tensors, you're in Python, and you'll stay there. PyTorch, PEFT, TRL and MLX
 sit on top of an ecosystem that is Python all the way down to the CUDA bindings,
-and there is no TypeScript equivalent, not because nobody tried but because the
-foundation is not there to build on. The lab's ecosystem measurement finds
-exactly one job out of nine with no TypeScript answer, and that is the one.
+and there's no TypeScript equivalent, not because nobody tried but because the
+foundation isn't there to build on. The lab's ecosystem measurement finds
+exactly one job out of nine with no TypeScript answer, and that's the one.
 
 The part that is no longer true is everything else. Calling a model, validating
 what it said, running a tool loop, streaming to a user, counting tokens,
@@ -35,9 +35,9 @@ Pydantic. LangGraph, LlamaIndex and Langfuse all ship first-party TypeScript.
 Which leaves a practical question rather than a tribal one. Most software that
 will use a language model is already written, and a great deal of it is written
 in TypeScript: the web application the feature belongs in, the API that serves
-it, the worker that processes the queue. The question is not "which language is
-better for AI." It is "is there a good reason to introduce a second language and
-a second deployment story into a system that does not have one." Usually there is
+it, the worker that processes the queue. The question isn't "which language is
+better for AI." It's "is there a good reason to introduce a second language and
+a second deployment story into a system that doesn't have one." Usually there's
 not, and this dive exists to make that decision on evidence rather than on
 folklore.
 
@@ -51,7 +51,7 @@ every annotation and emits the JavaScript underneath. Nothing about your types
 exists while the program runs.
 
 For a language whose job was to make large JavaScript codebases tractable, this
-was the right call, and it is a large part of why TypeScript won. It is also the
+was the right call, and it's a large part of why TypeScript won. It's also the
 single thing that most reliably surprises somebody arriving from Python, because
 Python's type hints are famously optional too, and yet in practice a Python AI
 codebase reaches for Pydantic, and Pydantic checks at runtime. The mental model
@@ -63,7 +63,7 @@ is built to make the collision visible. A model returns `{"total": "12.40"}` whe
 your schema asked for a number. You write the line every codebase writes,
 `JSON.parse(reply) as Receipt`, which compiles cleanly and is a claim with
 nothing behind it. And then the interesting thing happens, which is that
-JavaScript does not punish you promptly.
+JavaScript doesn't punish you promptly.
 
 Multiply that string by a tax rate and you get 2.604, which is the correct
 answer. Add a delivery fee to it and you get the string `"12.402.5"`. Sum three
@@ -78,47 +78,47 @@ works, so the bug survives code review, the test suite, and the first ten
 thousand receipts. The lab's example prints all four results side by side because
 the *pattern* is the lesson, not any one line.
 
-## Parsing, and why it is not validating
+## Parsing, and why it isn't validating
 
-The fix is not a better annotation, because there is no annotation that checks
+The fix isn't a better annotation, because there's no annotation that checks
 anything. The fix is a runtime check that also produces the type, and in
 TypeScript that is Zod: you declare a schema once, Zod validates the value while
 the program runs, and TypeScript infers the static type from the same
 declaration. One source of truth, enforced on both sides, which is precisely the
 job Pydantic does in the Python dives.
 
-There is a design idea underneath this that is worth naming, because it is
-transferable and it predates all of these libraries. It is usually called *parse,
-don't validate*: a checking function should not return a boolean and leave the
+There's a design idea underneath this that is worth naming, because it's
+transferable and it predates all of these libraries. It's usually called *parse,
+don't validate*: a checking function shouldn't return a boolean and leave the
 unchecked value lying around, it should return a **new value of a new type**, so
-that the unchecked one is not what you are holding afterwards. The lab's
+that the unchecked one isn't what you're holding afterwards. The lab's
 `parseModelJson` returns `{ ok: true, value: T } | { ok: false, error: string }`,
-and the consequence is that reaching `.value` without first checking `.ok` does
-not compile. You cannot write the classic bug where you validate and then use the
-original variable anyway, because after narrowing there is no original variable
+and the consequence is that reaching `.value` without first checking `.ok` doesn't
+compile. You can't write the classic bug where you validate and then use the
+original variable anyway, because after narrowing there's no original variable
 to use.
 
 Two dials sit on top of this and both are set by default whether you decide or
 not. Zod strips unknown keys unless you say `.strict()`, so a field the model
-invented is silently discarded; that is often right and it is always worth
+invented is silently discarded; that's often right and it's always worth
 knowing. And `z.coerce.number()` will rescue `"12.40"` while still rejecting
 `"about twelve"`, which is genuinely useful and costs you the signal: the day
 your prompt starts returning strings for every number, a coercing schema will
-never tell you. The rule the lab lands on is to coerce at edges you do not
+never tell you. The rule the lab lands on is to coerce at edges you don't
 control and stay strict on the ones you do, which puts a model's output firmly in
 the first category and your own database in the second.
 
-## What a schema cannot do, measured
+## What a schema can't do, measured
 
 Both providers will enforce a shape for you: OpenAI with a first-class
 `response_format`, Anthropic by defining a single tool and requiring the model to
 call it, which is a nice reminder that structured output is tool use wearing a
 hat. In TypeScript the ergonomics are unusually good, because Zod 4 generates the
 JSON Schema itself, so the shape the provider is shown and the validator you run
-on the reply are the same object and cannot drift.
+on the reply are the same object and can't drift.
 
 And then the experiment the lab exists for. Add a required `vatNumber` to the
-schema, and hand the model a receipt that does not have one.
+schema, and hand the model a receipt that doesn't have one.
 
 The expected result was fabrication. What actually happened was that
 `gpt-5.4-nano` returned an empty string and `claude-haiku-4-5` returned
@@ -129,7 +129,7 @@ required to notice.
 The finding that replaced the prediction is sharper. Each model invented its own
 private encoding for "this is absent," nothing documents either one, nothing
 stops them changing between versions, and `z.string()` accepts both. The schema
-did not prevent the bad value. It guaranteed the bad value would be a string. So
+didn't prevent the bad value. It guaranteed the bad value would be a string. So
 `"<UNKNOWN>"` is now in a database column that a finance export reads, indistinguishable
 by type from a real VAT number.
 
@@ -138,42 +138,42 @@ The design lesson generalizes past this dive and past TypeScript entirely:
 with no answer in the source is an instruction to put *something* there. Make the
 schema permit ignorance, with a nullable field or an enum that has an "unknown"
 member, and both models return `null` instead. The value of `null` over
-`"<UNKNOWN>"` is not tidiness; it is that `null` is in the contract, so your code
+`"<UNKNOWN>"` isn't tidiness; it's that `null` is in the contract, so your code
 can branch on it and your types can force you to.
 
 ## The half where TypeScript is ahead
 
-It would be a poor lecture that only listed costs. There is a place where this
-language is straightforwardly better for LLM work than Python, and it is the
+It would be a poor lecture that only listed costs. There's a place where this
+language is straightforwardly better for LLM work than Python, and it's the
 place LLM work spends most of its time: handling a reply.
 
-A model's reply is not a string, it is a list of typed content blocks, some text
+A model's reply isn't a string, it's a list of typed content blocks, some text
 and possibly a request to call a tool. In Python you walk that list with
 `isinstance` checks or dictionary lookups and nothing verifies that you paired
 the check with the right field. In TypeScript the blocks form a *discriminated
-union*: one shared field whose literal value tells the compiler which shape you
-are holding. Check `block.type === "tool_use"` and inside that branch the
+union*: one shared field whose literal value tells the compiler which shape you're
+holding. Check `block.type === "tool_use"` and inside that branch the
 compiler knows the block has a `name` and knows it has no `text`, and reading
-`.text` there is a build failure rather than an `AttributeError` on the unlucky
+`.text` there's a build failure rather than an `AttributeError` on the unlucky
 request.
 
 The stronger version is exhaustiveness. Assign the narrowed value to a variable
 of type `never` in the `default` branch, and the switch is now checked for
-completeness: if every case is handled there is nothing left and the assignment
+completeness: if every case is handled there's nothing left and the assignment
 is legal, and the day someone adds a variant to the union the assignment stops
-being legal in every switch that does not handle it, across the whole codebase,
-with nobody remembering to look. The error does not say "you missed a case," it
+being legal in every switch that doesn't handle it, across the whole codebase,
+with nobody remembering to look. The error doesn't say "you missed a case," it
 names the case, because the leftover type *is* the case you forgot.
 
-This is not a small convenience. Provider APIs gain block types; the ones in use
-today did not all exist two years ago. A client library that fails to build when
+This isn't a small convenience. Provider APIs gain block types; the ones in use
+today didn't all exist two years ago. A client library that fails to build when
 its assumptions expire is a materially better client library.
 
-The honest limit is worth stating in the same breath, because it is easy to
+The honest limit is worth stating in the same breath, because it's easy to
 over-read the win. What the compiler checked is that your code agrees with your
-declared union. It did not check that the provider's JSON agrees with either one.
+declared union. It didn't check that the provider's JSON agrees with either one.
 The SDKs' own response types are hand-written descriptions of an API, shipped in
-a package, updated on a release schedule. They are a claim, and nothing validates
+a package, updated on a release schedule. They're a claim, and nothing validates
 the bytes. Which is exactly why, in the lab's own type definitions, a tool call's
 arguments are typed `unknown`: the compiler has nothing useful to say about them,
 and saying so honestly is what forces every caller through a runtime parse.
@@ -188,19 +188,19 @@ something needs concurrency. TypeScript deletes the choice. It costs an `await`
 on your hello-world and it hands you the concurrency for free: six sequential
 calls take 248ms in the lab, and the same six under `Promise.all` take 42.
 
-Free concurrency comes with sharp edges that the compiler does not catch, because
-they are all valid programs. `array.forEach(async ...)` discards every promise it
+Free concurrency comes with sharp edges that the compiler doesn't catch, because
+they're all valid programs. `array.forEach(async ...)` discards every promise it
 creates, so the loop finishes instantly having done nothing. `Promise.all`
 rejects on the first failure and throws away the successful results with it,
 which for a batch of fifty model calls, where one 503 is routine, is almost never
 what was meant.
 
-And one that is not an edge but a hazard. Since Node 15, a rejected promise that
-nobody awaited does not warn, it **terminates the process**. One forgotten
+And one that isn't an edge but a hazard. Since Node 15, a rejected promise that
+nobody awaited doesn't warn, it **terminates the process**. One forgotten
 `await` in a background task, on a code path that only fails when a provider is
 having a bad afternoon, takes down a server that was otherwise healthy. Python's
-equivalent prints "coroutine was never awaited" and carries on. There is no
-review practice that reliably catches this, because it is a mistake of omission
+equivalent prints "coroutine was never awaited" and carries on. There's no
+review practice that reliably catches this, because it's a mistake of omission
 with nothing on the page to see, which makes it one of the few situations where
 the right answer really is a lint rule:
 `@typescript-eslint/no-floating-promises`.
@@ -208,13 +208,13 @@ the right answer really is a lint rule:
 ## One thread, and what it costs you
 
 Node's defining characteristic is that your JavaScript runs on a single thread
-with an event loop. This is why it is good at exactly the workload an LLM
+with an event loop. This is why it's good at exactly the workload an LLM
 application has: a handler that is waiting on somebody else's GPU is off the loop
 entirely, so a hundred concurrent model calls cost almost nothing but memory. In
 the lab's measurements, a health check served during a streaming model reply is
 indistinguishable from one served while idle.
 
-The caveat is the other side of the same coin, and it is not the GIL. Python's
+The caveat is the other side of the same coin, and it isn't the GIL. Python's
 lock lives in one process, and a normal deployment runs several uvicorn workers,
 so a handler that blocks occupies one worker while the others keep serving. Node
 has one thread per process, so a handler that blocks occupies the *entire
@@ -227,13 +227,13 @@ health check from inside the same process, reported a healthy 2ms, and printed i
 under the word "stalled." The busy loop had blocked the measuring code too: a
 timer set for 20ms fired at 401ms, after the stall was over.
 
-Generalize that and it is the operational lesson of this whole chapter. **A
-stalled Node process cannot report that it is stalled.** The health endpoint is
+Generalize that and it's the operational lesson of this whole chapter. **A
+stalled Node process can't report that it's stalled.** The health endpoint is
 on the blocked loop. So are the request timeouts, the metrics flush, and the
-SIGTERM handler. A Node service that blocks its loop does not degrade visibly; it
+SIGTERM handler. A Node service that blocks its loop doesn't degrade visibly; it
 looks fine until a load balancer outside it gives up and removes it. The remedies
 are unremarkable once you know to look (keep CPU work out of the request path,
-`worker_threads` when you cannot, more processes behind a balancer, and
+`worker_threads` when you can't, more processes behind a balancer, and
 event-loop-delay monitoring so the gaps get recorded), but knowing to look is the
 entire difference.
 
@@ -243,21 +243,21 @@ Three things, in the order they will matter.
 
 The `unknown` boundary is the good part, and it reads as friction for about a
 week. Everything arriving from outside your program is unknown until parsed, a
-model's output most of all, and TypeScript will not let you pretend otherwise
+model's output most of all, and TypeScript won't let you pretend otherwise
 unless you explicitly lie to it with `as`. Python with Pydantic reaches the same
-place; the difference is that here you cannot skip the step and still
+place; the difference is that here you can't skip the step and still
 read the value.
 
 The standard-library and ecosystem gaps are real and smaller than their
 reputation. Statistics is thirteen lines you write once. Binary formats are a
-genuine hole. Frameworks exist and run a release behind. Training does not port
+genuine hole. Frameworks exist and run a release behind. Training doesn't port
 and never will. None of that is a reason to pick a language, and all of it is
 worth measuring rather than assuming, which is why the lab measures it live
 instead of printing a table that will be wrong next year.
 
 The event loop is the thing to actually learn. Not the syntax, not the packages.
-It is the one place where a habit carried over from a Python service produces an
-outage rather than an inconvenience, and it is the one place where the
+It's the one place where a habit carried over from a Python service produces an
+outage rather than an inconvenience, and it's the one place where the
 troubleshooting instinct you built somewhere else will point you in the wrong
 direction.
 
