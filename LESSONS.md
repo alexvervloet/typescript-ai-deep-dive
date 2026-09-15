@@ -220,3 +220,26 @@ answer counts two Rivera orders and misses a third (`A-1008`), even though the
 tool returned all eight rows. Nothing in this repo would catch that: Zod
 validates that an answer is well-formed, not that it is right. Only an eval
 catches a wrong sum, which is the sibling dive's whole subject.
+
+## 7. `^0.x` is a lock, not a range, and that's how a dependency goes stale quietly
+
+This repo's `package.json` asked for `"@anthropic-ai/sdk": "^0.116.0"` and got
+0.116.x for months while the SDK shipped up to 0.125.0. Nothing warned. `npm
+install` succeeded every time, `npm outdated` was the only place it showed, and
+nobody runs that on a repo whose tests pass.
+
+The cause is a semver rule that's easy to know and still miss in practice: for
+`0.y.z` versions, caret pins the **minor**, because pre-1.0 packages are allowed
+to break on any minor bump. `^1.2.3` means `>=1.2.3 <2.0.0`; `^0.2.3` means
+`>=0.2.3 <0.3.0`. So the same caret that tracks two years of releases on a 1.x
+package tracks nothing at all on a 0.x one.
+
+The Anthropic TypeScript SDK has been 0.x for its whole life, and so have a lot
+of the AI libraries you'll depend on. The Python side of this series never hits
+it, because pip has no caret and the pins there are explicit ranges.
+
+Takeaway: for any `0.x` dependency, the caret is doing less than it looks like
+it's doing. Either bump the floor deliberately when you check (which is what
+happened here) or write the range you actually mean, `">=0.116.0 <1"`, and take
+responsibility for the breakage that bound invites. What you shouldn't do is
+read `^0.116.0` and think you're on the current release.

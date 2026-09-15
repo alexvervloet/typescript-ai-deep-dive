@@ -567,9 +567,11 @@ Everything else is smaller than its reputation.
 - **The browser half.** Streaming to `EventSource`, cancelling on unmount,
   rendering partial markdown safely. Section 13 is the server side of a story
   whose other half is where TypeScript is unmatched.
-- **TypeScript 7.** The compiler is being ported to Go, with large speedups. This
-  repo pins TypeScript 5 because that's what's stable; nothing here would need
-  to change.
+
+TypeScript 7 used to sit on this list as a prediction: the compiler was being
+ported to Go, and the guess was that nothing here would need to change. It
+shipped, this repo runs on it, and the guess held. `npm run typecheck` and the
+test suite pass on 7.0.2 with no source edits at all.
 
 ---
 
