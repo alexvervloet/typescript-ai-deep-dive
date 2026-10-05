@@ -189,7 +189,8 @@ console.log(`
   the provider is happy, the type is right, and the value is not a VAT number.
 
   Measured across the two models this repo defaults to, neither hallucinated a
-  realistic VAT number. ${cyan("gpt-5.4-nano")} returned ${yellow('""')}; ${cyan("claude-haiku-4-5")} returned
+  realistic VAT number. ${cyan("gpt-6-luna")} returned ${yellow('""')}, as gpt-5.4-nano did;
+  ${cyan("claude-haiku-4-5")} returned
   ${yellow('"<UNKNOWN>"')}. That is better behavior than inventing one, and it is still a
   problem, for a reason that is easy to miss:
 
