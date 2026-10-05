@@ -121,10 +121,10 @@ And then the experiment the lab exists for. Add a required `vatNumber` to the
 schema, and hand the model a receipt that doesn't have one.
 
 The expected result was fabrication. What actually happened was that
-`gpt-5.4-nano` returned an empty string and `claude-haiku-4-5` returned
-`"<UNKNOWN>"`. Both models declined to invent a plausible VAT number, which is
-better behavior than the example predicted and which testing a second model was
-required to notice.
+`gpt-5.4-nano` returned an empty string, and so did `gpt-6-luna`, which replaced
+it. `claude-haiku-4-5` returned `"<UNKNOWN>"`. None of them invented a plausible
+VAT number, which is better behavior than the example predicted and which testing
+a second model was required to notice.
 
 The finding that replaced the prediction is sharper. Each model invented its own
 private encoding for "this is absent," nothing documents either one, nothing
