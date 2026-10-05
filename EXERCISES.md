@@ -201,6 +201,7 @@ Measured:
 | model | value |
 |---|---|
 | `gpt-5.4-nano` | `""` |
+| `gpt-6-luna` (the new default, 3 runs, 2026-10-05) | `""` |
 | `claude-haiku-4-5` | `"<UNKNOWN>"` |
 
 Both dodged rather than fabricated. The problem is subtler than hallucination:
