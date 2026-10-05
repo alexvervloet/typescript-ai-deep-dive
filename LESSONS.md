@@ -54,6 +54,9 @@ demonstration asks for a `vatNumber` from a receipt that has none.
 | `gpt-5.4-nano` | `""` |
 | `claude-haiku-4-5` | `"<UNKNOWN>"` |
 
+(2026-10-05: re-measured after the OpenAI default moved to `gpt-6-luna`. It also
+returned `""`, three runs out of three.)
+
 Both dodged rather than fabricated, which is better behavior than the example
 predicted. Testing the second model mattered: one run would have suggested
 "models return empty strings," and the two together show something else.
