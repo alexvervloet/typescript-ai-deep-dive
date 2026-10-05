@@ -62,7 +62,7 @@ repo uses instead of a dependency.
 | `PROVIDER` | What it is | Key needed |
 |------------|------------|------------|
 | `mock` (default) | A deterministic, offline, in-process model. No network, no cost. | none |
-| `openai` | OpenAI chat completions (`gpt-5.4-nano`) | `OPENAI_API_KEY` |
+| `openai` | OpenAI chat completions (`gpt-6-luna`) | `OPENAI_API_KEY` |
 | `claude` | Anthropic messages (`claude-haiku-4-5`) | `ANTHROPIC_API_KEY` |
 
 **Twelve of the thirteen examples need no key.** Promises, cancellation,
@@ -205,6 +205,7 @@ hand it a receipt that doesn't have one:
 | model | value returned |
 |---|---|
 | `gpt-5.4-nano` | `""` |
+| `gpt-6-luna` (the new default, 3 runs, 2026-10-05) | `""` |
 | `claude-haiku-4-5` | `"<UNKNOWN>"` |
 
 Neither hallucinated a fake VAT number, which is better than this example
