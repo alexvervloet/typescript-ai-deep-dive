@@ -49,7 +49,11 @@ import type {
 } from "./types.ts";
 
 // Default models per stack, matching the sibling dives' cheap workhorses.
-const OPENAI_CHAT = "gpt-5.4-nano";
+const OPENAI_CHAT = "gpt-6-luna";
+// gpt-6-luna reasons by default. Hidden reasoning counts against
+// max_completion_tokens, and on chat completions luna rejects function tools
+// until reasoning is off. Both OpenAI calls below send this.
+const OPENAI_REASONING_OFF = { reasoning_effort: "none" as const };
 const CLAUDE_CHAT = "claude-haiku-4-5";
 
 const KEYS: Record<string, string[]> = {
@@ -339,6 +343,7 @@ export async function chat(request: ChatRequest): Promise<LlmResponse> {
     const response = await client.chat.completions.create(
       {
         model: OPENAI_CHAT,
+        ...OPENAI_REASONING_OFF,
         max_completion_tokens: maxTokens,
         messages: messages as never,
         ...(request.tools
@@ -503,6 +508,7 @@ export async function* stream(request: ChatRequest): AsyncGenerator<StreamEvent>
     const response = await client.chat.completions.create(
       {
         model: OPENAI_CHAT,
+        ...OPENAI_REASONING_OFF,
         max_completion_tokens: maxTokens,
         stream: true,
         stream_options: { include_usage: true },
